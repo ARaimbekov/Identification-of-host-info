@@ -28,7 +28,52 @@ def usage():
     -v, --verbose       This will print out the time stamps of the for loops and of the functions
     -r, --report        This will print out all the mac addresses on the switch you are scanning and what ports they are connected to.
     -f, --follow        This will follow all the cdp neighbors found per switch when using the -r or --report option.
-          """)
+
+   example below..
+   python port_report.py -d 192.168.101.1 -c public -i "192.168.101.201"
+   This IPAddress is not in the ARP table
+
+   python port_report.py -d 192.168.101.1 -c public -i "192.168.101.209"
+   MAC  = 00 14 38 7f 6e 38
+   Port = GigabitEthernet1/17
+   Vlan = 175
+   IPAddr = 192.168.101.209
+
+   python port_report.py -d 192.168.101.1 -c public -m "00 14 38 4f 5e 39"
+   MAC  = 00 14 38 4f 5e 39
+   Port = GigabitEthernet1/17
+   Vlan = 175
+   IPAddr = 192.168.101.201
+
+   python port_report.py -d 192.168.101.1 -c public -n "1/40"
+   Port 1/40 has the below MAC Addresses associated with it
+   MAC  = 00 1b 95 97 3c 81
+   Port = GigabitEthernet1/40
+   Vlan = 1
+   IPAddr = The IP Address for this MAC is not in the ARP Table
+
+   MAC  = 00 15 fa b4 10 06
+   Port = GigabitEthernet1/40
+   Vlan = 174
+   IPAddr = The IP Address for this MAC is not in the ARP Table
+
+   Total MAC Addresses associated with this interface 2
+
+   python port_report.py -d 192.168.101.1 -c public -n "1/2"
+   Port 1/2 has the below MAC Addresses associated with it
+   MAC  = 08 00 0f 20 b3 aa
+   Port = GigabitEthernet1/2
+   Vlan = 176
+   IPAddr = 192.168.101.104
+
+   python port_report.py -d 192.168.101.1 -c public -r -f
+   Running Switch Report on 192.168.101.1
+   GigabitEthernet1/40,00 1b 90 99 3d 83,None,None,vlan1,up,up,unknown,1000mb,
+   GigabitEthernet10/15,00 23 5e ef 34 81,192.168.101.2,Pointer Record Not set for 192.168.101.62,vlan1,up,up,fullDuplex,1000mb,GIG Laser to 71Fifth
+   GigabitEthernet1/34,00 01 02 03 03 05,None,None,vlan174,up,up,unknown,1000mb,CCA_CAS Untrusted Interface IP 168.3
+
+
+   """)
     sys.exit(0)
 
 
@@ -210,6 +255,14 @@ def main():
                     mdict = switch.return_mac_by_ifIndex(lcomm[i], lvlan[i])
                     if mdict:
                         connected_macs.append(mdict)
+            """
+            elif (re.search("Nortel|ERS|Foundry", switchtype, re.IGNORECASE)):
+                comm = community
+                vlan = None
+                mdict = switch.return_mac_by_ifIndex(comm, vlan)
+                if mdict:
+                    connected_macs.append(mdict)
+            """
             if len(connected_macs) > 0:
                 for host in connected_macs:
                     for key, val in list(host.items()):
